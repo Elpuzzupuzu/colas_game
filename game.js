@@ -8,32 +8,27 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 app.use(cors());
-
-// Servir los archivos estáticos desde la raíz
 app.use(express.static(__dirname));
 
-// Cola de colores y lógica de colores
 const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange'];
 let colorQueue = [];
-const maxColors = 7; // Límite de colores en la cola
-const endGameQueueLength = 5; // Longitud de la cola para finalizar el juego
-let removedColorsCount = 0;
+const maxColors = 7;
+const endGameQueueLength = 5;
+let removedColorsCount = 0; // Contador de colores eliminados
+let score = 0; // Contador de aciertos
 
 function getRandomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
-// Generar un nuevo color cada 10 segundos
 const colorGenerationInterval = setInterval(() => {
-    // Solo agregar colores si la cola tiene menos de 7 colores
     if (colorQueue.length < maxColors) {
         const newColor = getRandomColor();
         colorQueue.push(newColor);
         io.emit('newColor', newColor);
         
-        // Verificar si la longitud de la cola es igual a 5 para finalizar el juego
         if (colorQueue.length === endGameQueueLength) {
-            io.emit('endGame', `¡Juego terminado! Has eliminado correctamente ${removedColorsCount} cuadros.`);
+            io.emit('endGame', `¡Juego terminado! Has eliminado correctamente ${removedColorsCount} cuadros. Tu puntaje final es: ${score}.`);
             clearInterval(colorGenerationInterval);
         }
     }
@@ -43,19 +38,21 @@ io.on('connection', (socket) => {
     console.log('A user connected');
     socket.emit('colorQueue', colorQueue);
     socket.emit('removedCount', removedColorsCount);
+    socket.emit('score', score); // Emitir el puntaje inicial
 
     socket.on('removeColor', (color) => {
         const firstColorInQueue = colorQueue[0];
         if (firstColorInQueue && firstColorInQueue === color) {
-            colorQueue.shift(); // Eliminar el primer elemento de la cola
-            removedColorsCount++; // Incrementar el contador de eliminaciones correctas
+            colorQueue.shift();
+            removedColorsCount++;
+            score++; // Incrementar el contador de aciertos
 
-            io.emit('colorQueue', colorQueue); // Emitir la nueva cola
-            io.emit('removedCount', removedColorsCount); // Enviar el conteo actualizado
+            io.emit('colorQueue', colorQueue);
+            io.emit('removedCount', removedColorsCount);
+            io.emit('score', score); // Emitir el nuevo puntaje
 
-            // Verificar si la longitud de la cola es igual a 5 para finalizar el juego
             if (colorQueue.length === endGameQueueLength) {
-                io.emit('endGame', `¡Juego terminado! Has eliminado correctamente ${removedColorsCount} cuadros.`);
+                io.emit('endGame', `¡Juego terminado! Has eliminado correctamente ${removedColorsCount} cuadros. Tu puntaje final es: ${score}.`);
                 clearInterval(colorGenerationInterval);
             }
         }
