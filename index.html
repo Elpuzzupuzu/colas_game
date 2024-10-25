@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Queue Game</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="/socket.io/socket.io.js"></script>
+    <title>Juego de Colores</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Color Queue Game</h1>
-    <div id="color-container"></div>
-    <select id="color-select">
-        <option value="">Select a color to remove</option>
-        <option value="red">Red</option>
-        <option value="green">Green</option>
-        <option value="blue">Blue</option>
-        <option value="yellow">Yellow</option>
-        <option value="purple">Purple</option>
-        <option value="orange">Orange</option>
-    </select>
-    <button id="remove-color">Remove Color</button>
-    <p>Cuadros eliminados correctamente: <span id="removed-count">0</span></p>
-    <p id="end-message"></p>
+    <h1>Juego de Colores</h1>
+    
+    <div id="color-container" class="fila"></div>
+
+    <div id="color-menu">
+        <p>Selecciona un color para eliminar:</p>
+        <div class="color-option" data-color="red" style="background-color: red;"></div>
+        <div class="color-option" data-color="blue" style="background-color: blue;"></div>
+        <div class="color-option" data-color="green" style="background-color: green;"></div>
+        <div class="color-option" data-color="yellow" style="background-color: yellow;"></div>
+        <div class="color-option" data-color="purple" style="background-color: purple;"></div>
+        <div class="color-option" data-color="orange" style="background-color: orange;"></div> <!-- Color Naranja Añadido -->
+    </div>
+
+    <div id="mensaje"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

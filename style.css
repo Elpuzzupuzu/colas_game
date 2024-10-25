@@ -1,0 +1,71 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+}
+
+.fila {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    border: 2px solid #333;
+    padding: 10px;
+    height: 60px;
+    overflow: hidden;
+}
+
+.bloque, .color-box {
+    width: 80px;
+    height: 40px;
+    margin: 5px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.5s ease, transform 0.5s ease;
+}
+
+.bloque::before, .bloque::after,
+.color-box::before, .color-box::after {
+    content: '';
+    width: 15px;
+    height: 15px;
+    background-color: black;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -8px;
+}
+
+.bloque::before, .color-box::before {
+    left: 10px;
+}
+
+.bloque::after, .color-box::after {
+    right: 10px;
+}
+
+#mensaje {
+    margin-top: 20px;
+    color: red;
+}
+
+#color-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Estilos para el menú de selección de color */
+#color-menu {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+}

@@ -1,10 +1,9 @@
 const socket = io();
-
 const colorContainer = document.getElementById('color-container');
-const removeColorButton = document.getElementById('remove-color');
-const colorSelect = document.getElementById('color-select');
-const removedCountElement = document.getElementById('removed-count');
-const endMessageElement = document.getElementById('end-message');
+const mensaje = document.getElementById('mensaje');
+
+// Variables para el color seleccionado
+let selectedColor = null;
 
 // Escuchar nuevos colores del servidor
 socket.on('newColor', (color) => {
@@ -13,20 +12,8 @@ socket.on('newColor', (color) => {
 
 // Escuchar la cola de colores al conectarse
 socket.on('colorQueue', (colorQueue) => {
-    colorContainer.innerHTML = ''; // Limpiar el contenedor
+    colorContainer.innerHTML = '';
     colorQueue.forEach(color => addColorBox(color));
-});
-
-// Escuchar el contador de eliminaciones al conectarse
-socket.on('removedCount', (count) => {
-    removedCountElement.textContent = count;
-});
-
-// Escuchar el mensaje de finalización del juego
-socket.on('endGame', (message) => {
-    endMessageElement.textContent = message;
-    removeColorButton.disabled = true;
-    colorSelect.disabled = true;
 });
 
 // Función para agregar un cuadro de color
@@ -37,10 +24,20 @@ function addColorBox(color) {
     colorContainer.appendChild(colorBox);
 }
 
-// Eliminar el primer color en la cola seleccionado en el menú
-removeColorButton.addEventListener('click', () => {
-    const selectedColor = colorSelect.value;
-    if (selectedColor) {
-        socket.emit('removeColor', selectedColor);
-    }
+// Seleccionar el color al hacer clic en un cuadro del menú
+document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', (event) => {
+        selectedColor = event.target.getAttribute('data-color');
+        
+        // Emitir el color seleccionado al servidor para eliminar el cuadro correspondiente
+        if (selectedColor) {
+            socket.emit('removeColor', selectedColor);
+        }
+    });
+});
+
+// Escuchar confirmación del servidor para recargar la vista al eliminar
+socket.on('colorRemoved', (removedColor) => {
+    mensaje.textContent = `Se eliminó un cuadro de color ${removedColor}`;
+    setTimeout(() => location.reload(), 500); // Recargar la página
 });

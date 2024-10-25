@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Colores Animado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        #color-container {
+            display: flex;
+            gap: 10px;
+            min-height: 80px;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .color-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .color-option {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-option:hover {
+            transform: translateY(-3px);
+        }
+
+        .color-option:active {
+            transform: scale(0.95);
+        }
+
+        #mensaje {
+            text-align: center;
+            font-size: 1.2em;
+            min-height: 50px;
+            padding: 10px;
+            color: #FF5252;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .high-score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 10px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .color-option {
+                width: 40px;
+                height: 40px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="high-score">
+        Record: <span id="highScore">0</span>
+    </div>
+
+    <div class="game-container">
+        <div class="header">
+            <h1>Juego de Colores</h1>
+            <p>¡Elimina los colores en el orden correcto!</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div>Eliminados</div>
+                <div id="eliminados" class="stat-value">0</div>
+            </div>
+            <div class="stat">
+                <div>Puntaje</div>
+                <div id="puntaje" class="stat-value">0</div>
+            </div>
+        </div>
+
+        <div id="color-container"></div>
+
+        <div class="controls">
+            <button class="color-option" data-color="rgb(255, 0, 0)" style="background-color: rgb(255, 0, 0)"></button>
+            <button class="color-option" data-color="rgb(0, 255, 0)" style="background-color: rgb(0, 255, 0)"></button>
+            <button class="color-option" data-color="rgb(0, 0, 255)" style="background-color: rgb(0, 0, 255)"></button>
+            <button class="color-option" data-color="rgb(255, 255, 0)" style="background-color: rgb(255, 255, 0)"></button>
+            <button class="color-option" data-color="rgb(255, 0, 255)" style="background-color: rgb(255, 0, 255)"></button>
+            <button class="color-option" data-color="rgb(0, 255, 255)" style="background-color: rgb(0, 255, 255)"></button>
+        </div>
+
+        <div id="mensaje"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+       const socket = io();
+const colorContainer = document.getElementById('color-container');
+const eliminadosSpan = document.getElementById('eliminados');
+const mensaje = document.getElementById('mensaje');
+const puntajeSpan = document.getElementById('puntaje');
+let eliminados = 0;
+let puntaje = 0;
+let isGameRunning = true;
+
+// Configuración de animaciones
+const ANIMATION_DURATION = 500; // ms
+
+// Escuchar nuevos colores del servidor
+socket.on('newColor', (color) => {
+    if (isGameRunning) {
+        addColorBox(color);
+        checkGameStatus();
+    }
+});
+
+// Escuchar la cola de colores al conectarse
+socket.on('colorQueue', (colorQueue) => {
+    colorContainer.innerHTML = '';
+    colorQueue.forEach((color, index) => {
+        setTimeout(() => {
+            addColorBox(color);
+        }, index * 200); // Entrada escalonada de los colores iniciales
+    });
+});
+
+// Función mejorada para agregar un cuadro de color con animación
+function addColorBox(color) {
+    const colorBox = document.createElement('div');
+    colorBox.className = 'color-box';
+    colorBox.style.backgroundColor = color;
+    
+    // Aplicar animación de entrada
+    colorBox.style.animation = 'bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+    
+    // Efecto de brillo al aparecer
+    const shine = document.createElement('div');
+    shine.className = 'shine';
+    colorBox.appendChild(shine);
+    
+    colorContainer.appendChild(colorBox);
+
+    // Agregar efecto de ondulación continua
+    colorBox.addEventListener('mouseover', () => {
+        colorBox.style.animation = 'pulse 1s infinite';
+    });
+
+    colorBox.addEventListener('mouseout', () => {
+        colorBox.style.animation = '';
+    });
+}
+
+// Mejorar la selección de color con efectos visuales
+document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', () => {
+        if (!isGameRunning) return;
+        
+        const color = option.getAttribute('data-color');
+        option.style.animation = 'pressButton 0.2s forwards';
+        
+        // Efecto de onda al hacer click
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        option.appendChild(ripple);
+        
+        setTimeout(() => {
+            option.style.animation = '';
+            ripple.remove();
+        }, 300);
+        
+        removeColor(color);
+    });
+});
+
+// Función mejorada para eliminar colores
+function removeColor(color) {
+    if (!isGameRunning || colorContainer.children.length === 0) return;
+
+    const firstBox = colorContainer.children[0];
+    if (firstBox.style.backgroundColor === color) {
+        // Animación de explosión al eliminar
+        firstBox.style.animation = 'explode 0.3s forwards';
+        
+        setTimeout(() => {
+            colorContainer.removeChild(firstBox);
+            eliminados++;
+            puntaje += 10;
+            
+            // Actualizar displays con animación
+            animateNumber(eliminadosSpan, eliminados);
+            animateNumber(puntajeSpan, puntaje);
+            
+            showFloatingText(`+10`, 'success');
+        }, 300);
+    } else {
+        // Efecto de error
+        firstBox.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+            firstBox.style.animation = '';
+        }, 500);
+        
+        puntaje = Math.max(0, puntaje - 5);
+        animateNumber(puntajeSpan, puntaje);
+        showFloatingText(`-5`, 'error');
+    }
+
+    checkGameStatus();
+}
+
+// Función para animar números
+function animateNumber(element, finalValue) {
+    const duration = 500;
+    const startValue = parseInt(element.textContent) || 0;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const currentValue = Math.floor(startValue + (finalValue - startValue) * progress);
+        element.textContent = currentValue;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+// Función para mostrar texto flotante
+function showFloatingText(text, type) {
+    const floatingText = document.createElement('div');
+    floatingText.className = `floating-text ${type}`;
+    floatingText.textContent = text;
+    document.body.appendChild(floatingText);
+    
+    setTimeout(() => floatingText.remove(), 1000);
+}
+
+// Verificar estado del juego
+function checkGameStatus() {
+    if (!isGameRunning) return;
+
+    let consecutiveCount = 1;
+    let previousColor = null;
+    
+    for (let i = 0; i < colorContainer.children.length; i++) {
+        const currentColor = colorContainer.children[i].style.backgroundColor;
+        
+        if (currentColor === previousColor) {
+            consecutiveCount++;
+            if (consecutiveCount >= 5) {
+                gameOver("¡Has perdido! Demasiados colores iguales consecutivos.");
+                return;
+            }
+        } else {
+            consecutiveCount = 1;
+        }
+        
+        previousColor = currentColor;
+    }
+}
+
+// Función de game over con reinicio automático
+function gameOver(message) {
+    isGameRunning = false;
+    
+    // Animación de desvanecimiento para todos los cuadros
+    Array.from(colorContainer.children).forEach((box, index) => {
+        setTimeout(() => {
+            box.style.animation = 'fadeOutRotate 0.5s forwards';
+        }, index * 100);
+    });
+    
+    // Mostrar mensaje de game over con animación
+    mensaje.textContent = message;
+    mensaje.style.animation = 'bounceIn 0.5s forwards';
+    
+    // Guardar y mostrar puntaje más alto
+    const highScore = localStorage.getItem('highScore') || 0;
+    if (puntaje > highScore) {
+        localStorage.setItem('highScore', puntaje);
+        showFloatingText(`¡Nuevo récord: ${puntaje}!`, 'success');
+    }
+    
+    // Reiniciar el juego después de 3 segundos
+    setTimeout(resetGame, 3000);
+}
+
+// Función para reiniciar el juego
+function resetGame() {
+    colorContainer.innerHTML = '';
+    eliminados = 0;
+    puntaje = 0;
+    eliminadosSpan.textContent = '0';
+    puntajeSpan.textContent = '0';
+    mensaje.textContent = '';
+    mensaje.style.animation = '';
+    isGameRunning = true;
+    
+    // Reconectar al servidor si es necesario
+    if (!socket.connected) {
+        socket.connect();
+    }
+    
+    // Mostrar mensaje de reinicio
+    showFloatingText('¡Juego reiniciado!', 'info');
+}
+
+// Estilos CSS mejorados
+const styles = `
+    .color-box {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .shine {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        animation: shine 2s infinite;
+    }
+    
+    @keyframes shine {
+        to {
+            left: 200%;
+        }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        60% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes explode {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes fadeOutRotate {
+        to {
+            transform: scale(0) rotate(180deg);
+            opacity: 0;
+        }
+    }
+    
+    .floating-text {
+        position: fixed;
+        pointer-events: none;
+        animation: float 1s ease-out forwards;
+        font-size: 24px;
+        font-weight: bold;
+        z-index: 1000;
+    }
+    
+    .floating-text.success {
+        color: #2ecc71;
+    }
+    
+    .floating-text.error {
+        color: #e74c3c;
+    }
+    
+    .floating-text.info {
+        color: #3498db;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+        }
+        20% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(-50%, -100%) scale(1);
+            opacity: 0;
+        }
+    }
+    
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(0);
+        animation: ripple 0.6s linear;
+    }
+    
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes pressButton {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+    }
+`;
+
+// Agregar estilos al documento
+const styleSheet = document.createElement('style');
+styleSheet.textContent = styles;
+document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>
