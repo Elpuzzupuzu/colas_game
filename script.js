@@ -36,8 +36,8 @@ document.querySelectorAll('.color-option').forEach(option => {
     });
 });
 
-// Escuchar confirmación del servidor para recargar la vista al eliminar
-socket.on('colorRemoved', (removedColor) => {
-    mensaje.textContent = `Se eliminó un cuadro de color ${removedColor}`;
-    setTimeout(() => location.reload(), 500); // Recargar la página
+// Escuchar el mensaje de fin del juego
+socket.on('endGame', (message) => {
+    mensaje.textContent = message;
+    setTimeout(() => location.reload(), 5000); // Recargar la página después de 5 segundos
 });

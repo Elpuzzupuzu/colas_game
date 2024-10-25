@@ -64,13 +64,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('A user disconnected');
     });
-}); // funcion de renderizado
-
-
-
-
-
-
+});
 
 // Servir el archivo index.html
 app.get('/', (req, res) => {
